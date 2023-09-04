@@ -6,18 +6,18 @@ height = 1200 - margin.top - margin.bottom;
 // append the svg object to the body of the page
 const svg = d3.select("#radial")
 .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
 .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  const dataset = "miserables";
-  const ego = "Valjean";
-  
-  const promises = [
-      d3.json('./data/' + dataset + "." + ego + '.edges.json'),
-      d3.json('./data/' + dataset + "." + ego + '.nodes.json')
-  ];
+const dataset = "miserables";
+const ego = "Valjean";
+
+const promises = [
+    d3.json('./data/' + dataset + "." + ego + '.edges.json'),
+    d3.json('./data/' + dataset + "." + ego + '.nodes.json')
+];
 
 function color(hop) {
     switch (hop) {
@@ -59,6 +59,16 @@ Promise.all(promises).then(function(promisedData){
     .append("line")
         .attr("stroke-width", d => weightMin/3 + d.weight);
 
+    // Node Overlay (to space edges from nodes)
+    const buffer = svg.append('g')
+        .attr('fill', 'white')
+    .selectAll("circle.buffer")
+    .data(data.nodes)
+    .enter()
+    .append("circle")
+        .attr('class', 'buffer')
+        .attr("r", 9);
+
     // Initialize the nodes
     const node = svg.append('g')
         .attr("stroke-width", 1)
@@ -70,18 +80,6 @@ Promise.all(promises).then(function(promisedData){
         .attr('class', 'node')
         .attr("r", 7)
         .style("stroke", d => color(d.hop))
-
-    // Node Overlay (to space edges from nodes)
-    const buffer = svg.append('g')
-        .attr("stroke-width", 2)
-        .attr('stroke', 'white')
-        .attr('fill', 'transparent')
-    .selectAll("circle.buffer")
-    .data(data.nodes)
-    .enter()
-    .append("circle")
-        .attr('class', 'buffer')
-        .attr("r", 9);
 
     // Text
     const text = svg.append('g')
