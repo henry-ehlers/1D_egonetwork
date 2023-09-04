@@ -21,6 +21,8 @@ const promises = [
 
 function color(hop) {
     switch (hop) {
+        case -1:
+            return 'black';
         case 0:
             return 'black';
         case 1:
@@ -48,15 +50,14 @@ Promise.all(promises).then(function(promisedData){
     console.log(weightMin);
     // data.links = data.links.filter(d => (d.source != ego && d.target != ego));
 
-
     // Initialize the links
     var link = svg.append('g')
-        .style("stroke", "#aaa")
         .attr("stroke-opacity", 1)
     .selectAll("line")
     .data(data.links)
     .enter()
     .append("line")
+        .style("stroke", d => color(d.hop))
         .attr("stroke-width", d => weightMin/3 + d.weight);
 
     // Node Overlay (to space edges from nodes)
@@ -92,9 +93,6 @@ Promise.all(promises).then(function(promisedData){
     .enter()
         .append('text')
             .text(d => Math.floor(Math.random() * 99))
-
-    
-
 
     // Let's list the force we wanna apply on the network
     var simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
