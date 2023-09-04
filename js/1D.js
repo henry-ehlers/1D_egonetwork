@@ -71,8 +71,9 @@ Promise.all(promises).then(function(promisedData){
         .attr("r", 4)
         .style("stroke", d => color(d.hop))
 
+    // Node Overlay (to space edges from nodes)
     const buffer = svg.append('g')
-        .attr("stroke-width", 1)
+        .attr("stroke-width", 2)
         .attr('stroke', 'white')
         .attr('fill', 'transparent')
     .selectAll("circle.buffer")
@@ -81,6 +82,20 @@ Promise.all(promises).then(function(promisedData){
     .append("circle")
         .attr('class', 'buffer')
         .attr("r", 5);
+
+    // Text
+    const text = svg.append('g')
+        .attr('class', 'node-text')
+        .style("text-anchor", "middle")
+        .style('dominant-baseline', 'central')
+        .style("font-size", "4pt")
+    .selectAll('text')
+    .data(data.nodes)
+    .enter()
+        .append('text')
+            .text(d => Math.floor(Math.random() * 99))
+
+    
 
 
     // Let's list the force we wanna apply on the network
@@ -112,6 +127,11 @@ Promise.all(promises).then(function(promisedData){
     buffer
         .attr("cx", function (d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+
+    text
+        .attr('x', function (d) { return d.x; })
+        .attr('y', function (d) { return d.y; });
+    
     }
 
 }).catch(function(error) {
