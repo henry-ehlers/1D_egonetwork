@@ -1,7 +1,15 @@
+const dataset = "miserables";
+const ego = "Javert";
+
+const promises = [
+    d3.json('./data/' + dataset + "." + ego + '.edges.json'),
+    d3.json('./data/' + dataset + "." + ego + '.nodes.json')
+];
+
 // set the dimensions and margins of the graph
 const margin = {top: 10, right: 10, bottom: 10, left: 10},
-width = 1800 - margin.left - margin.right,
-height = 1200 - margin.top - margin.bottom;
+width = 1400 - margin.left - margin.right,
+height = 800 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 const svg = d3.select("#radial")
@@ -10,14 +18,6 @@ const svg = d3.select("#radial")
     .attr("height", height + margin.top + margin.bottom)
 .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-const dataset = "miserables";
-const ego = "Valjean";
-
-const promises = [
-    d3.json('./data/' + dataset + "." + ego + '.edges.json'),
-    d3.json('./data/' + dataset + "." + ego + '.nodes.json')
-];
 
 function color(hop) {
     switch (hop) {
@@ -48,7 +48,7 @@ Promise.all(promises).then(function(promisedData){
     let ego = data.nodes[0].ego;
     let weightMin = Math.min(...data.links.map(d => d.weight))
     console.log(weightMin);
-    // data.links = data.links.filter(d => (d.source != ego && d.target != ego));
+    const hops = [... new Set(data.nodes.map(d => d.hop))];
 
     // Initialize the links
     var link = svg.append('g')
@@ -69,6 +69,23 @@ Promise.all(promises).then(function(promisedData){
     .append("circle")
         .attr('class', 'buffer')
         .attr("r", 9);
+
+    // Add guides
+    const guides = svg.append('g')
+        .attr('class', 'guide')
+        .attr('stroke-width', 1)
+        .attr('fill', 'transparent')
+        .selectAll('line.guide')
+        .data(hops)
+        .enter()
+        .append('line')
+            .attr('class', 'guide')
+                .attr('stroke-dasharray', 5, 5)
+                .attr('stroke', 'grey')
+                .attr('x1', 0)
+                .attr('x2', width)
+                .attr('y1', d => d * 200)
+                .attr('y2', d => d * 200)
 
     // Initialize the nodes
     const node = svg.append('g')
@@ -104,34 +121,37 @@ Promise.all(promises).then(function(promisedData){
         )
         .force("linear", 
             d3.forceY(d => d.hop * 200)
-                .strength(1))
+                .strength(3)
+        )
         .force("charge", 
             d3.forceManyBody()
-                .strength(-250))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength
-        .force("center", 
-            d3.forceCenter(width / 2, height / 2))     // This force attracts nodes to the center of the svg area
-        //.tick(100000)
+                .strength(-300)
+        )         // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+        // .force("center", 
+        //     d3.forceCenter()
+        //         .x(width/2)
+        // )     // This force attracts nodes to the center of the svg area
         .on("end", ticked);
 
     // This function is run at each iteration of the force algorithm, updating the nodes position.
     function ticked() {
     link
-        .attr("x1", function(d) { return d.source.x; })
+        .attr("x1", function(d) { return d.source.x + width/4; })
         .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
+        .attr("x2", function(d) { return d.target.x + width/4; })
         .attr("y2", function(d) { return d.target.y; });
     
     node
-        .attr("cx", function (d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+        .attr("cx", function (d) { return d.x + width/4; })
+        .attr("cy", function(d) { return d.y});
 
     buffer
-        .attr("cx", function (d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+        .attr("cx", function (d) { return d.x + width/4; })
+        .attr("cy", function(d) { return d.y});
 
     text
-        .attr('x', function (d) { return d.x; })
-        .attr('y', function (d) { return d.y; });
+        .attr('x', function (d) { return d.x + width/4; })
+        .attr('y', function (d) { return d.y});
     
     }
 
