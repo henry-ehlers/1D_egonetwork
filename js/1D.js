@@ -1,5 +1,5 @@
-const dataset = "miserables";
-const ego = "Javert";
+const dataset = "karateclub";
+const ego = "34";
 
 const promises = [
     d3.json('./data/' + dataset + "." + ego + '.edges.json'),
@@ -9,7 +9,7 @@ const promises = [
 // set the dimensions and margins of the graph
 const margin = {top: 10, right: 10, bottom: 10, left: 10},
 width = 1400 - margin.left - margin.right,
-height = 800 - margin.top - margin.bottom;
+height = 700 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 const svg = d3.select("#radial")
@@ -26,15 +26,13 @@ function color(hop) {
         case 0:
             return 'black';
         case 1:
-            return 'red';
+            return '#66c2a5';
         case 2:
-            return 'blue';
+            return '#fc8d62';
         case 3:
-            return 'turquoise';
+            return '#8da0cb';
         case 4:
-            return 'pink';
-        case 5: 
-            return 'green';
+            return '#e78ac3';
     }
 }
 
@@ -43,7 +41,7 @@ Promise.all(promises).then(function(promisedData){
         links: promisedData[0],
         nodes: promisedData[1]
     }
-
+    
     //
     let ego = data.nodes[0].ego;
     let weightMin = Math.min(...data.links.map(d => d.weight))
@@ -84,8 +82,8 @@ Promise.all(promises).then(function(promisedData){
                 .attr('stroke', 'grey')
                 .attr('x1', 0)
                 .attr('x2', width)
-                .attr('y1', d => d * 200)
-                .attr('y2', d => d * 200)
+                .attr('y1', d => d * 150)
+                .attr('y2', d => d * 150)
 
     // Initialize the nodes
     const node = svg.append('g')
@@ -98,6 +96,8 @@ Promise.all(promises).then(function(promisedData){
         .attr('class', 'node')
         .attr("r", 7)
         .style("stroke", d => color(d.hop))
+        .style("fill", d => color(d.hop))
+        .style("opacity", 0.5);
 
     // Text
     const text = svg.append('g')
@@ -109,7 +109,7 @@ Promise.all(promises).then(function(promisedData){
     .data(data.nodes)
     .enter()
         .append('text')
-            .text(d => Math.floor(Math.random() * 99))
+            .text(d => d.id)
 
     // Let's list the force we wanna apply on the network
     var simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
@@ -120,7 +120,7 @@ Promise.all(promises).then(function(promisedData){
                 .links(data.links)                                      // and this the list of links
         )
         .force("linear", 
-            d3.forceY(d => d.hop * 200)
+            d3.forceY(d => d.hop * 150)
                 .strength(3)
         )
         .force("charge", 
@@ -136,21 +136,21 @@ Promise.all(promises).then(function(promisedData){
     // This function is run at each iteration of the force algorithm, updating the nodes position.
     function ticked() {
     link
-        .attr("x1", function(d) { return d.source.x + width/4; })
+        .attr("x1", function(d) { return d.source.x + width/2; })
         .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x + width/4; })
+        .attr("x2", function(d) { return d.target.x + width/2; })
         .attr("y2", function(d) { return d.target.y; });
     
     node
-        .attr("cx", function (d) { return d.x + width/4; })
+        .attr("cx", function (d) { return d.x + width/2; })
         .attr("cy", function(d) { return d.y});
 
     buffer
-        .attr("cx", function (d) { return d.x + width/4; })
+        .attr("cx", function (d) { return d.x + width/2; })
         .attr("cy", function(d) { return d.y});
 
     text
-        .attr('x', function (d) { return d.x + width/4; })
+        .attr('x', function (d) { return d.x + width/2; })
         .attr('y', function (d) { return d.y});
     
     }
